@@ -27,13 +27,7 @@ const Popup = ({ open, handleClose, handleAddPerson }) => {
       </Box>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            type="number"
-            {...register("id")}
-            label="ID"
-            fullWidth
-            sx={{ mt: 1 }}
-          />
+          
           <TextField
             type="string"
             {...register("name")}
@@ -49,9 +43,9 @@ const Popup = ({ open, handleClose, handleAddPerson }) => {
             sx={{ mt: 1 }}
           />
           <TextField
-            type="string"
-            {...register("gender")}
-            label="Gender"
+            type="email"
+            {...register("email")}
+            label="Email"
             fullWidth
             sx={{ mt: 1, mb: 1 }}
           />

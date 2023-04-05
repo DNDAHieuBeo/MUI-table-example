@@ -1,10 +1,16 @@
-import React from 'react'
-import MainPage from './components/MainPage'
+import React from "react";
+import MainPage from "./components/MainPage";
+import './App.css'
+
 
 function App() {
   return (
-    <div><MainPage/></div>
-  )
+    <div className="App">
+      <MainPage />
+      </div>
+      
+    
+  );
 }
 
-export default App
+export default App;

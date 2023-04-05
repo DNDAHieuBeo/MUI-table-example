@@ -1,9 +1,10 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+
 import Popup from "./Popup";
 import { AiOutlinePlus } from "react-icons/ai";
 import { v4 as uuidv4 } from "uuid";
+import EditPopup from "./EditPopup";
 
 import {
   Table,
@@ -15,42 +16,47 @@ import {
   Paper,
   Button,
 } from "@mui/material";
-import EditDialog from "./EditDialog";
 
 function MainPage() {
-  const [data, setData] = useState([]);
-
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const savedData = localStorage.getItem("exampleTableData");
+  // Create array data using hook to apply localStorage()
+  const [data, setData] = useState(() => {
+    const savedData = localStorage.getItem("data");
     if (savedData) {
-      setData(JSON.parse(savedData));
+      return JSON.parse(savedData);
     }
-  }, []);
+    return [data];
+  });
 
   useEffect(() => {
-    localStorage.setItem("exampleTableData", JSON.stringify(data));
+    localStorage.setItem("data", JSON.stringify(data));
   }, [data]);
 
-  const handleOpen = () => {
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editingPerson, setEditingPerson] = useState(null);
+
+  //Function to opn create popup
+  const handleOpen = (person) => {
     setOpen(true);
   };
-  
-
+  //function to close create popup
   const handleClose = () => {
     setOpen(false);
   };
-
-
+  //Function to create edit popup
+  const handleEditOpen = (person) => {
+    setEditingPerson(person);
+    setEditing(true);
+  };
+  //Create data
   const handleAddPerson = (formData) => {
     const newPerson = {
-      id: uuidv4(),
+      id: data.length > 0 ? data[data.length - 1].id + 1 : 1,
       ...formData,
     };
     setData([...data, newPerson]);
   };
-
+  //Delete data
   const handleDeletePerson = (id) => {
     const index = data.findIndex((person) => person.id === id);
     if (index !== -1) {
@@ -59,11 +65,17 @@ function MainPage() {
       setData(newData);
     }
   };
-
-  
+  //Edit and update data
+  const handleEditPerson = (id, updatedData) => {
+    setData((prevData) =>
+      prevData.map((person) =>
+        person.id === id ? { ...person, ...updatedData } : person
+      )
+    );
+  };
 
   return (
-    <div style={{paddingLeft:400,paddingRight:300,paddingTop:50}}>
+    <div style={{ paddingLeft: 300, paddingRight: 300, paddingTop: 50 }}>
       <TableContainer component={Paper} sx={{ width: "auto", margin: "auto" }}>
         <Button
           onClick={handleOpen}
@@ -84,42 +96,64 @@ function MainPage() {
         <Table>
           <TableHead sx={{ backgroundColor: "#3c629e" }}>
             <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Age</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell style={{width:'150px'}}></TableCell>
-              
+              <TableCell sx={{ textAlign: "center", color: "white", borderRight:'1px solid gray' }}>
+                ID
+              </TableCell>
+              <TableCell sx={{ textAlign: "center", color: "white",borderRight:'1px solid gray' }}>
+                Name
+              </TableCell>
+              <TableCell sx={{ textAlign: "center", color: "white",borderRight:'1px solid gray' }}>
+                Age
+              </TableCell>
+              <TableCell sx={{ textAlign: "center", color: "white",borderRight:'1px solid gray' }}>
+                Email
+              </TableCell>
+              <TableCell style={{ width: "150px" }}></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {data.map((row) => (
               <TableRow key={row.id}>
-                <TableCell>{row.id}</TableCell>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.age}</TableCell>
-                <TableCell>{row.gender}</TableCell>
+                <TableCell sx={{ textAlign: "center",borderRight:'1px solid gray' }}>{row.id}</TableCell>
+                <TableCell sx={{ textAlign: "center",borderRight:'1px solid gray' }}>{row.name}</TableCell>
+                <TableCell sx={{ textAlign: "center",borderRight:'1px solid gray' }}>{row.age}</TableCell>
+                <TableCell sx={{ textAlign: "center",borderRight:'1px solid gray' }}>{row.email}</TableCell>
                 <TableCell>
                   <Button
                     variant="contained"
-                    color="secondary"
+                    color="primary"
+                    onClick={() => handleEditOpen(row)}
+                  >
+                    Edit
+                  </Button>
+                  {editing && (
+                    <EditPopup
+                      open={editing}
+                      handleClose={() => setEditing(false)}
+                      handleEditPerson={handleEditPerson}
+                      editingPerson={editingPerson}
+                    />
+                  )}
+                  <Button
+                    variant="contained"
+                    sx={{ backgroundColor: "red", ml: 2 }}
                     onClick={() => handleDeletePerson(row.id)}
                   >
-                    D
+                    Del
                   </Button>
-                  
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+
       <Popup
         open={open}
         handleClose={handleClose}
         handleAddPerson={handleAddPerson}
+        handleOpen={handleOpen}
       />
-
     </div>
   );
 }
