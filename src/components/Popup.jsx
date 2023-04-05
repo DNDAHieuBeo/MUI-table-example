@@ -11,45 +11,105 @@ import {
 } from "@mui/material";
 
 const Popup = ({ open, handleClose, handleAddPerson }) => {
-  const { register, handleSubmit, reset } = useForm();
-
+  const {
+    reset,
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    
+  });
   const onSubmit = (formData) => {
     handleAddPerson(formData);
     reset();
     handleClose();
   };
+  const validateAge = (value) => {
+    if (!value) {
+      return "Age is required";
+    }
+    if (isNaN(value)) {
+      return "Age must be a number";
+    }
+    if (value < 16) {
+      return "Age must be bigger than 16";
+    }
+    if (value > 60) {
+      return "Age must be under 60";
+    }
+    return true;
+  };
 
   return (
     <Dialog open={open} onClose={handleClose}>
-      <Box sx={{display:'flex',flexDirection:'row',justifyContent:'space-between'}}>
-      <DialogTitle>Add New Person</DialogTitle>
-      <Button onClick={()=>handleClose()} style={{width:'20px', borderRadius:'50%'}}><AiOutlineClose/></Button>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <DialogTitle>Add New Person</DialogTitle>
+        <Button
+          onClick={() => handleClose()}
+          style={{ width: "20px", borderRadius: "50%" }}
+        >
+          <AiOutlineClose />
+        </Button>
       </Box>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
-          
           <TextField
-            type="string"
-            {...register("name")}
+            autoFocus
+            margin="dense"
             label="Name"
+            name="name"
             fullWidth
-            sx={{ mt: 1 }}
+            required
+            {...register("name", {
+              required: "Name is required",
+              pattern: {
+                value:  /^[A-Za-z\s]+$/i,
+                message: "Name must only contain letters",
+              },
+            })}
+            error={Boolean(errors.name)}
+            helperText={errors.name?.message}
           />
           <TextField
-            type="number"
-            {...register("age")}
+            margin="dense"
             label="Age"
+            name="age"
             fullWidth
-            sx={{ mt: 1 }}
+            required
+            {...register("age", {
+              validate: validateAge,
+            })}
+            error={Boolean(errors.age)}
+            helperText={errors.age?.message}
           />
           <TextField
-            type="email"
-            {...register("email")}
+            margin="dense"
             label="Email"
+            name="email"
             fullWidth
-            sx={{ mt: 1, mb: 1 }}
+            required
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+                message: "Invalid email format",
+              },
+            })}
+            error={Boolean(errors.email)}
+            helperText={errors.email?.message}
           />
-          <Button variant="contained" color="primary" type="submit" style={{margin:'auto'}}>
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            style={{ margin: "auto" }}
+          >
             Add New Student
           </Button>
         </form>

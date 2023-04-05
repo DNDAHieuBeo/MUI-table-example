@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Dialog,
   DialogTitle,
@@ -7,51 +7,88 @@ import {
   TextField,
   Button,
 } from "@mui/material";
+import { useForm } from "react-hook-form";
 
 function EditPopup(props) {
   const { open, handleClose, handleEditPerson, editingPerson } = props;
-  const [formData, setFormData] = useState(editingPerson);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: editingPerson,
+  });
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((formData) => ({ ...formData, [name]: value }));
+  const onSubmit = (data) => {
+    handleEditPerson(editingPerson.id, data);
+    handleClose();
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    handleEditPerson(editingPerson.id, formData);
-    handleClose();
+  const validateAge = (value) => {
+    if (!value) {
+      return "Age is required";
+    }
+    if (isNaN(value)) {
+      return "Age must be a number";
+    }
+    if (value < 16) {
+      return "Age must be bigger than 16";
+    }
+    if (value > 60) {
+      return "Age must be under 60";
+    }
+    return true;
   };
 
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>Edit Person</DialogTitle>
       <DialogContent>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <TextField
             autoFocus
             margin="dense"
             label="Name"
             name="name"
-            value={formData.name}
-            onChange={handleChange}
             fullWidth
+            required
+            {...register("name", {
+              required: "Name is required",
+              pattern: {
+                value:  /^[A-Za-z\s]+$/i,
+                message: "Name must only contain letters",
+              },
+            })}
+            error={Boolean(errors.name)}
+            helperText={errors.name?.message}
           />
           <TextField
             margin="dense"
             label="Age"
             name="age"
-            value={formData.age}
-            onChange={handleChange}
             fullWidth
+            required
+            {...register("age", {
+              validate: validateAge,
+            })}
+            error={Boolean(errors.age)}
+            helperText={errors.age?.message}
           />
           <TextField
             margin="dense"
             label="Email"
             name="email"
-            value={formData.email}
-            onChange={handleChange}
             fullWidth
+            required
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+                message: "Invalid email format",
+              },
+            })}
+            error={Boolean(errors.email)}
+            helperText={errors.email?.message}
           />
           <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>

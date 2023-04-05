@@ -1,10 +1,14 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import { sortById, sortByAge,sortByName,sortByEmail } from "./SortFucnction";
 
 import Popup from "./Popup";
 import { AiOutlinePlus } from "react-icons/ai";
-import { v4 as uuidv4 } from "uuid";
+import { AiOutlineArrowDown, AiOutlineArrowUp } from "react-icons/ai";
+import { handleDeletePerson } from "./DeleteFunction";
 import EditPopup from "./EditPopup";
+import IconButton from "@mui/material/IconButton";
+
 
 import {
   Table,
@@ -30,13 +34,13 @@ function MainPage() {
   useEffect(() => {
     localStorage.setItem("data", JSON.stringify(data));
   }, [data]);
-
+  const [sortOrder, setSortOrder] = useState("asc");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editingPerson, setEditingPerson] = useState(null);
 
   //Function to opn create popup
-  const handleOpen = (person) => {
+  const handleOpen = () => {
     setOpen(true);
   };
   //function to close create popup
@@ -57,13 +61,8 @@ function MainPage() {
     setData([...data, newPerson]);
   };
   //Delete data
-  const handleDeletePerson = (id) => {
-    const index = data.findIndex((person) => person.id === id);
-    if (index !== -1) {
-      const newData = [...data];
-      newData.splice(index, 1);
-      setData(newData);
-    }
+  const handleDelete = (id) => {
+    handleDeletePerson(id, data, setData);
   };
   //Edit and update data
   const handleEditPerson = (id, updatedData) => {
@@ -75,7 +74,7 @@ function MainPage() {
   };
 
   return (
-    <div style={{ paddingLeft: 300, paddingRight: 300, paddingTop: 50 }}>
+    <div style={{ paddingLeft: 300, paddingRight: 300, paddingTop: 50,paddingBottom:50, overflow:'hidden' }}>
       <TableContainer component={Paper} sx={{ width: "auto", margin: "auto" }}>
         <Button
           onClick={handleOpen}
@@ -96,17 +95,82 @@ function MainPage() {
         <Table>
           <TableHead sx={{ backgroundColor: "#3c629e" }}>
             <TableRow>
-              <TableCell sx={{ textAlign: "center", color: "white", borderRight:'1px solid gray' }}>
-                ID
+              <TableCell
+                sx={{
+                  textAlign: "center",
+                  color: "white",
+                  borderRight: "1px solid gray",
+                }}
+              >
+                ID{""}
+                <IconButton
+                  sx={{ fontSize: "15px", color: "white" }}
+                  onClick={() =>
+                    sortById(data, sortOrder, setData, setSortOrder)
+                  }
+                >
+                  {sortOrder === "asc" ? (
+                    <AiOutlineArrowDown />
+                  ) : (
+                    <AiOutlineArrowUp />
+                  )}
+                </IconButton>
               </TableCell>
-              <TableCell sx={{ textAlign: "center", color: "white",borderRight:'1px solid gray' }}>
-                Name
+              <TableCell
+                sx={{
+                  textAlign: "center",
+                  color: "white",
+                  borderRight: "1px solid gray",
+                }}
+                onClick={() => sortByName(data, sortOrder, setData, setSortOrder)}
+              >
+                Name{" "}
+                <IconButton sx={{ fontSize: "15px", color: "white" }}>
+                  {sortOrder === "asc" ? (
+                    <AiOutlineArrowDown />
+                  ) : (
+                    <AiOutlineArrowUp />
+                  )}
+                </IconButton>
               </TableCell>
-              <TableCell sx={{ textAlign: "center", color: "white",borderRight:'1px solid gray' }}>
-                Age
+              <TableCell
+                sx={{
+                  textAlign: "center",
+                  color: "white",
+                  borderRight: "1px solid gray",
+                }}
+               
+              >
+                Age{""}
+                <IconButton
+                  sx={{ fontSize: "15px", color: "white" }}
+                  onClick={() => sortByAge(data, sortOrder, setData, setSortOrder)}
+                >
+                  {sortOrder === "asc" ? (
+                    <AiOutlineArrowDown />
+                  ) : (
+                    <AiOutlineArrowUp />
+                  )}
+                </IconButton>
               </TableCell>
-              <TableCell sx={{ textAlign: "center", color: "white",borderRight:'1px solid gray' }}>
-                Email
+              <TableCell
+                sx={{
+                  textAlign: "center",
+                  color: "white",
+                  borderRight: "1px solid gray",
+                }}
+              >
+                Email{""}
+                <IconButton
+                  sx={{ fontSize: "15px", color: "white" }}
+                  onClick={() => sortByEmail(data, sortOrder, setData, setSortOrder)}
+                >
+                  {sortOrder === "asc" ? (
+                    <AiOutlineArrowDown />
+                  ) : (
+                    <AiOutlineArrowUp />
+                  )}
+                </IconButton>
               </TableCell>
               <TableCell style={{ width: "150px" }}></TableCell>
             </TableRow>
@@ -114,10 +178,26 @@ function MainPage() {
           <TableBody>
             {data.map((row) => (
               <TableRow key={row.id}>
-                <TableCell sx={{ textAlign: "center",borderRight:'1px solid gray' }}>{row.id}</TableCell>
-                <TableCell sx={{ textAlign: "center",borderRight:'1px solid gray' }}>{row.name}</TableCell>
-                <TableCell sx={{ textAlign: "center",borderRight:'1px solid gray' }}>{row.age}</TableCell>
-                <TableCell sx={{ textAlign: "center",borderRight:'1px solid gray' }}>{row.email}</TableCell>
+                <TableCell
+                  sx={{ textAlign: "center", borderRight: "1px solid gray" }}
+                >
+                  {row.id}
+                </TableCell>
+                <TableCell
+                  sx={{ textAlign: "center", borderRight: "1px solid gray" }}
+                >
+                  {row.name}
+                </TableCell>
+                <TableCell
+                  sx={{ textAlign: "center", borderRight: "1px solid gray" }}
+                >
+                  {row.age}
+                </TableCell>
+                <TableCell
+                  sx={{ textAlign: "center", borderRight: "1px solid gray" }}
+                >
+                  {row.email}
+                </TableCell>
                 <TableCell>
                   <Button
                     variant="contained"
@@ -137,7 +217,7 @@ function MainPage() {
                   <Button
                     variant="contained"
                     sx={{ backgroundColor: "red", ml: 2 }}
-                    onClick={() => handleDeletePerson(row.id)}
+                    onClick={() => handleDelete(row.id)}
                   >
                     Del
                   </Button>
