@@ -28,7 +28,7 @@ function MainPage() {
     if (savedData) {
       return JSON.parse(savedData);
     }
-    return [data];
+    return [];
   });
 
   useEffect(() => {
