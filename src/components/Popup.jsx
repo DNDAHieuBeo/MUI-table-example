@@ -108,7 +108,7 @@ const Popup = ({ open, handleClose, handleAddPerson }) => {
             variant="contained"
             color="primary"
             type="submit"
-            style={{ margin: "auto" }}
+            
           >
             Add New Student
           </Button>
